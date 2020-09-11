@@ -1,58 +1,3 @@
-! program test_tl_ad
-!   implicit none
-!   integer, parameter :: n = 100
-!   real*8, parameter :: dt = 0.1D0
-!   real*8, dimension(3) :: xinit, dyinit, dxinit, x, dx, x1, x2, x3, x_tl, x_ad
-!   REAL*8, parameter :: p = 1.3D0, r = 0.6D0, b = 2.0D0 ! constants
-!   real*8 :: tl_disp, ad_disp
-!   integer :: i,m
-  
-!   do i=1,3
-!      xinit(i) = sin(dble(i))
-!   end do
-!   x1 = xinit
-!   call model(x1,dt,n)
-!   do i=1,3
-!      dxinit(i) = sin(dble(i + 123))
-!   end do
-!   dx = dxinit
-!   do m=0,11
-!      x2 = xinit + dx
-!      x3 = xinit
-!      x_tl = dx
-!      call model(x2,dt,n)
-!      call model_tl(x3,x_tl,dt,n)
-!      write(*,*) m, (x2 - x1)/x_tl
-!      dx = dx*0.1D0
-!   end do
-
-!   do i=1,3
-!      dyinit(i) = log(cos(sin(dble(i)))**2)
-!   end do
-
-!   ! <M \delta x, M \delta x> = <\delta x, M* M \delta x>
-!   x = xinit
-!   x_tl = dxinit
-!   call model_tl(x,x_tl,dt,n)
-!   x = xinit
-!   x_ad = x_tl
-!   call model_ad(x,x_ad,dt,n)
-!   tl_disp = sum( x_tl * x_tl )
-!   ad_disp = sum( dxinit * x_ad )
-!   write(*,*) 'test adj 1',tl_disp, ad_disp, 1.0 - tl_disp / ad_disp
-
-!   ! <M \delta x, \delta y> = <\delta x, M* \delta y>
-!   x = xinit
-!   x_tl = dxinit
-!   call model_tl(x,x_tl,dt,n)
-!   x = xinit
-!   x_ad = dyinit
-!   call model_ad(x,x_ad,dt,n)
-!   write(*,*) 'test adj 2',sum(x_tl*dyinit), sum(dxinit*x_ad), log(sum(x_tl*dyinit)/sum(dxinit*x_ad))
-  
-! contains
-
-!!!!!!!!!!!!!!!!! ORIGINAL VERSION !!!!!!!!!!!!!!!!!!!!!
 SUBROUTINE model_lorenz63(x,dt,nstep,params)
   implicit none
   REAL*8,INTENT(INOUT) :: x(3)
@@ -210,5 +155,4 @@ SUBROUTINE step_ad_lorenz63(x_ad,dxdt_ad,dt)
   return
 END SUBROUTINE step_ad_lorenz63
 
-! end program test_tl_ad
 
