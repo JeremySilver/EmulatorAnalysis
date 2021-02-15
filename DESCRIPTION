@@ -1,13 +1,18 @@
-Package: EmulatorProject
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Package: EmulatorAnalysis
+Title: Uncertainty quantification for emulators of deterministic models
+Version: 0.0.0.1000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Jeremy",
+           family = "Silver",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: What license it uses
+           email = "jeremy.silver@unimelb.edu.au",
+           comment = c(ORCID = "0000-0003-1502-6249"))
+Description: Routines for comparing methods of uncertainty
+  quantification for emulators of deterministic models. This package
+  is mainly in support of a report on the topic.
+License: LGPL-3
 Encoding: UTF-8
 LazyData: true
+Depends: R (>= 3.6.1)
+Imports: deSolve, MASS, xgboost, mgcv, e1071, nnet, locfit, 
+    kernlab, tidymodels
