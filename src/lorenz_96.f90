@@ -1,15 +1,18 @@
-subroutine model_lorenz96(x,n,dt,nstep,f)
+subroutine model_lorenz96(x,xout,n,dt,nstep,f)
   implicit none
   real*8,intent(inout) :: x(n)
   integer, intent(in) :: n ! number of variables
   real*8,intent(in) :: dt ! timestep
   real*8,intent(in) :: f ! forcing
   integer, intent(in):: nstep
+  real*8,intent(out) :: xout(n,nstep+1)
   integer :: j
 
+  xout(:,1) = x(:)
   do j = 1,nstep
      ! write(*,*) x(1)
      call rk4_lorenz96(x,n,dt,f)
+     xout(:,j+1) = x(:)
   enddo
 
   return
