@@ -22,7 +22,7 @@ applyEmulators <- function(Df,
                            returnSeFit = FALSE,
                            tuneModels = TRUE,
                            tunedParams = NULL,
-                           emulatorNames = c('lm','gam','svm','nnet','xgb','locfit', 'gp')
+                           emulatorNames = c('lm','gam','svm','nnet','xgb','locfit', 'gp'),
                            verbose = FALSE){
     library(xgboost)  ## xgb.train
     library(mgcv)     ## gam
