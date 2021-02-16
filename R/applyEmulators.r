@@ -12,7 +12,25 @@
 #' @param verbose Boolean: should extra output be printed to the R console? Defaults to \code{FALSE}.
 
 #' @return A \code{list} object with the following 2 or 3 entries (there will be 3 entries if argument \code{returnSeFit} is \code{TRUE}, and 2 otherwise). \code{pred}: a \code{data.frame} object with column names given by \code{emulatorNames}, and the rows corresponding to \code{itest}. \code{tunedParams}: the list of tuned hyperparameters. \code{predSe}: the native estimate of uncertainty from each emulator for which it is available (this return value is only included if \code{returnSeFit} is \code{TRUE}); this has the same format as the return value of \code{pred} (a \code{data.frame} object with column names given by \code{emulatorNames}, and the rows corresponding to \code{itest}).
-
+#'
+#' @importFrom dials grid_latin_hypercube tree_depth learn_rate
+#' @importFrom e1071 svm tune.control
+#' @importFrom kernlab gausspr sigest
+#' @importFrom locfit locfit
+#' @importFrom mgcv gam predict.gam
+#' @importFrom parsnip boost_tree set_engine set_mode
+#' @importFrom rsample vfold_cv
+#' @importFrom nnet nnet nnet.formula
+#' @importFrom stats lm predict.lm
+#' @importFrom tune control_grid select_best tune_grid
+#' @importFrom workflows add_formula add_model workflow
+#' @importFrom xgboost xgb.DMatrix xgb.train
+#' @importFrom grDevices dev.off pdf
+#' @importFrom graphics abline axis legend lines mtext par plot smoothScatter text
+#' @importFrom stats aggregate as.formula coef cor cov mad mahalanobis median optim quantile resid rgamma rnorm runif sd smooth.spline spline
+#' @importFrom magrittr %>%
+#'
+#' @export
 
 applyEmulators <- function(Df,
                            itrain,
@@ -24,13 +42,21 @@ applyEmulators <- function(Df,
                            tunedParams = NULL,
                            emulatorNames = c('lm','gam','svm','nnet','xgb','locfit', 'gp'),
                            verbose = FALSE){
-    library(xgboost)  ## xgb.train
-    library(mgcv)     ## gam
-    library(e1071)    ## svm
-    library(nnet)     ## nnet
-    library(locfit)   ## locfit
-    library(kernlab)  ## gausspr
-    library(tidymodels) ## for tuning xgboost
+    requireNamespace('xgboost')  ## xgb.train
+    requireNamespace('mgcv')     ## gam
+    requireNamespace('e1071')    ## svm
+    requireNamespace('nnet')     ## nnet
+    requireNamespace('locfit')   ## locfit
+    requireNamespace('kernlab')  ## gausspr
+    ## requireNamespace('tidymodels') ## for tuning xgboost
+    requireNamespace('parsnip')
+    requireNamespace('dials')
+    requireNamespace('rsample')
+    requireNamespace('workflows')
+    requireNamespace('tune')
+    requireNamespace('stats')
+    requireNamespace('graphics')
+    requireNamespace('grDevices')
 
     nEmulators <- length(emulatorNames)
     
@@ -69,9 +95,9 @@ applyEmulators <- function(Df,
         tm <- system.time({
             Formula <- as.formula(sprintf('%s~%s',responseVariables[iEm],paste(predictorVariables,collapse='+')))
             if(verbose) print(Formula,showEnv = FALSE)
-            pred <- predict(lm(Formula, data = Df[itrain,]),
-                            newdata = Df[itest,predictorVariables],
-                            se.fit = returnSeFit)
+            pred <- predict.lm(lm(Formula, data = Df[itrain,]),
+                                      newdata = Df[itest,predictorVariables],
+                                      se.fit = returnSeFit)
             if(returnSeFit){
                 predEns[,iEm] <- pred$fit
                 predSe[,iEm] <- pred$se.fit
@@ -89,7 +115,7 @@ applyEmulators <- function(Df,
         tm <- system.time({
             Formula <- as.formula(paste(responseVariables[iEm],'~',paste(paste('s(',predictorVariables,')'),collapse='+')))
             if(verbose) print(Formula,showEnv = FALSE)
-            pred <- predict(gam(Formula, data = Df[itrain,]),
+            pred <- predict.gam(gam(Formula, data = Df[itrain,]),
                             newdata = Df[itest,predictorVariables],
                             se.fit = returnSeFit)
             if(returnSeFit){
@@ -212,8 +238,8 @@ applyEmulators <- function(Df,
             dtrain <- xgb.DMatrix(data = as.matrix(Df[itrain,predictorVariables]), label = Df[itrain,responseVariables[iEm]])
             xgb_spec <- boost_tree(
                 trees = 100, 
-                tree_depth = tune(), ## maps to 'max_depth'
-                learn_rate = tune(), ##  maps to 'eta'. step size
+                tree_depth = tune::tune(), ## maps to 'max_depth'
+                learn_rate = tune::tune(), ##  maps to 'eta'. step size
                 ) %>% 
                 set_engine("xgboost") %>% 
                 set_mode("regression") 

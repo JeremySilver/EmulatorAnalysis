@@ -5,6 +5,8 @@
 #' @param labels A vector of strings. If \code{fx} and \code{fy} have length greater than 1, then \code{labels} should have the same length.
 #' @param ... Further arguments passed to \code{text()}.
 #' @return Nothing is returned
+#'
+#' @export
 fracText <- function(fx,fy,labels,...){
   text(sum(par()$usr[1:2]*c(1-fx,fx)),
        sum(par()$usr[3:4]*c(1-fy,fy)),

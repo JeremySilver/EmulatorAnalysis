@@ -5,11 +5,26 @@
 #' @param outFile A string specifying the file path to output the standard error results to. If \code{NULL} (the default), the progress will be printed on the R console.
 #' @param plotsFolder A string specifying the folder to save the plots file to. If unspecified, it defaults to the current working directory. 
 #' @return Nothing is returned
+#'
+#' @importFrom deSolve lsode
+#' @importFrom MASS rlm
+#' @importFrom utils head tail
+#' @importFrom stats predict smooth.spline
+
+#'
+#' @export
+
 
 runTests <- function(Model = NULL,
                      Ix = NULL,
                      outFile = NULL,
                      plotsFolder = getwd()){
+
+    requireNamespace('deSolve')
+    requireNamespace('MASS') 
+    requireNamespace('utils') 
+    requireNamespace('stats')
+   
 
     if(!is.null(outFile)){
         sink(file = outFile)
@@ -45,7 +60,8 @@ runTests <- function(Model = NULL,
                     xout = double(nx*(nstep+1)),
                     dt = dt,
                     nstep = nstep,
-                    params = params)
+                    params = params,
+                    PACKAGE = 'EmulatorAnalysis')
     ##
     xin <- res$x
     for(i in 1:nrealisations){
@@ -56,7 +72,8 @@ runTests <- function(Model = NULL,
                         xout = double(nx*(nstep+1)),
                         dt = dt,
                         nstep = nstep,
-                        params = params)
+                        params = params,
+                        PACKAGE = 'EmulatorAnalysis')
         ## 
         xout <- res[['x']]
         lorenz63data[i,] <- c(params,xin,xout)
@@ -67,7 +84,8 @@ runTests <- function(Model = NULL,
                         xout = double(nx*(nstepInit+1)),
                         dt = dt,
                         nstep = nstepInit,
-                        params = params)
+                        params = params,
+                        PACKAGE = 'EmulatorAnalysis')
         xin <- res$x
     }
     if(any(!is.finite(lorenz63data))) stop('Ouch!')
@@ -107,7 +125,8 @@ runTests <- function(Model = NULL,
                     n = nx,
                     dt = dt,
                     nstep = nstepInit,
-                    F = F)
+                    F = F,
+                    PACKAGE = 'EmulatorAnalysis')
     xin <- res$x
     ## 
     for(i in 1:nrealisations){
@@ -119,7 +138,8 @@ runTests <- function(Model = NULL,
                         n = nx,
                         dt = dt,
                         nstep = nstep,
-                        F = F)
+                        F = F,
+                        PACKAGE = 'EmulatorAnalysis')
         xout <- res$x
         ##
         if(any(!is.finite(xout))) stop('NaNs...')
@@ -132,7 +152,8 @@ runTests <- function(Model = NULL,
                         n = nx,
                         dt = dt,
                         nstep = nstepInit,
-                        F = F)
+                        F = F,
+                        PACKAGE = 'EmulatorAnalysis')
         xin <- res$x
     }
     if(any(!is.finite(lorenz96data))) stop('Ouch!')
@@ -179,7 +200,6 @@ runTests <- function(Model = NULL,
     ntimes <- 201
     timeMax <- 2
     n <- 4 ## size of the system
-    library(deSolve)
     times <- seq(0,timeMax,length.out = ntimes)
     ensemble <- array(dim = c(nrealisations,ntimes,n))
     isample <- 1
@@ -193,7 +213,7 @@ runTests <- function(Model = NULL,
         vals <- -1*sort(runif(n),decreasing=T)
         M <- vecs %*% diag(vals) %*% solve(vecs)
         ##
-        out3  <- lsode(yini, times, gradient, parms = M, jactype = "fullusr", jacfunc = jacobian, addSine = TRUE)
+        out3  <- deSolve::lsode(yini, times, gradient, parms = M, jactype = "fullusr", jacfunc = jacobian, addSine = TRUE)
         ensemble[isample,,] <- out3[,-1]
         yinis[isample,] <- yini
         Ms[isample,] <- c(M)
@@ -382,7 +402,6 @@ runTests <- function(Model = NULL,
             rmse <- function(x,y) sqrt(mean((x-y)^2))
             mae <- function(x,y) median(abs(x-y))
 
-            library(MASS)     ## rlm
             
             pdf(file.path(plotsFolder,sprintf('errPlots_%s_ix%i.pdf',model,ix)))
             for(iEm in 1:nEmulators){
@@ -535,7 +554,7 @@ runTests <- function(Model = NULL,
                             lines(spl,col = 3, lwd = 2)
                             abline(0,1,lwd=2)
                             sdPerQuant$quantsMid <- quantsMid
-                            LM <- rlm(x ~ quantsMid,data = sdPerQuant)
+                            LM <- MASS::rlm(x ~ quantsMid,data = sdPerQuant)
                             CF <- coef(LM)
                             abline(CF[1],CF[2],lwd=2,lty=2,col=2)
                             cat(sprintf('model = %s, ix = %i, em = %s, iplot = %i,',model,ix,emulatorNames[iEm],iplot),sprintf('y = %.3g + %.3g x',CF[1],CF[2]),fill = TRUE)
