@@ -13,6 +13,8 @@ Description: Routines for comparing methods of uncertainty
 License: Apache License 2.0
 Encoding: UTF-8
 LazyData: true
-Depends: R (>= 3.6.1), deSolve, MASS, xgboost, mgcv, e1071, nnet, locfit, 
-    kernlab, tidymodels
+Depends: R (>= 3.6.1)
+Imports: deSolve, MASS, xgboost, mgcv, e1071, nnet, locfit, 
+    kernlab, parsnip, dials, rsample, stats, tune,
+    workflows, graphics, grDevices, magrittr, utils
 RoxygenNote: 6.1.1
