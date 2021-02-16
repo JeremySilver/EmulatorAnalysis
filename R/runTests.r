@@ -10,7 +10,6 @@
 #' @importFrom MASS rlm
 #' @importFrom utils head tail
 #' @importFrom stats predict smooth.spline
-
 #'
 #' @export
 
@@ -20,6 +19,41 @@ runTests <- function(Model = NULL,
                      outFile = NULL,
                      plotsFolder = getwd()){
 
+    ## check that argument Model takes one of the permittted values
+    if(!is.null(Model)){
+        if(!all(Model %in% c('lorenz63','lorenz96','ODEperiodic'))){
+            stop("The argument 'Model' should be a vector with values taken from c('lorenz63','lorenz96','ODEperiodic')")
+        }
+    }
+    ## check that argument Ix takes one of the permitted values
+    if(!is.null(Ix)){
+        ## only works if Model is specified - if not, override
+        if(is.null(Model)){
+            Ix <- NULL
+            warning('Ix was non-NULL, but Model was NULL.... Overriding Ix!')
+        } else {
+            ## It only works if we are dealing with a single value of Model
+            if(length(Model) != 1){
+                stop("If arguments Model and Ix are specified (i.e. non-NULL), Model should be of length 1")
+            }
+            ## Check that the values given by Model and Ix are compatible
+            if(Model == 'lorenz63'){
+                if(!all(Ix %in% 1:3)){
+                    stop("The 'lorenz63' model has indices 1,2,3 - try a different value of Ix")
+                }
+            } else if(Model == 'lorenz96'){
+                if(!all(Ix %in% c(1,4,8,12))){
+                    stop("The 'lorenz96' model has indices 1,4,8.12 - try a different value of Ix")
+                }
+            } else {
+                if(!all(Ix %in% 1:4)){
+                    stop("The 'ODEperiodic' model has indices 1,2,3,4 - try a different value of Ix")
+                }
+            }
+        }
+    }
+    
+    
     requireNamespace('deSolve')
     requireNamespace('MASS') 
     requireNamespace('utils') 
