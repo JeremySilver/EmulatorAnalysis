@@ -2,4 +2,3 @@
 *.o
 *.so
 NAMESPACE
-man/*.Rd
