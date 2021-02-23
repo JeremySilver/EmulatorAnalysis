@@ -16,6 +16,7 @@
 #' @importFrom dials grid_latin_hypercube tree_depth learn_rate
 #' @importFrom e1071 svm tune.control
 #' @importFrom kernlab gausspr sigest
+#' @importMethodsFrom kernlab predict
 #' @importFrom locfit locfit lp
 #' @importFrom mgcv gam predict.gam
 #' @importFrom parsnip boost_tree set_engine set_mode

@@ -497,8 +497,6 @@ runTests <- function(Model = NULL,
                                             }
                                         }
                                     }
-                                    ## print(c(idup[j:k]))
-                                    ## stopifnot(length(idup[j:k]) == length( head(tail(seq(quants[idup[j]-1],quants[idup[k]+1],length.out = k-j+3),-1),-1)))
                                     quants[idup[j:k]] <- head(tail(seq(quants[idup[j]-1],quants[idup[k]+1],length.out = k-j+3),-1),-1)
                                     j <- k+1
                                 }
@@ -506,8 +504,8 @@ runTests <- function(Model = NULL,
                         }
                         quantsMid <- (head(quants,-1) + tail(quants,-1))/2
                         suppressWarnings({
-                            ilastMid <- tail(which(abs(log(quantsMid/spline(Qs5Mid,quants5Mid,xout = QsMid)$y)) < log(1.2)),1)
-                            ilastMid <- tail(which(abs(log(quantsMid/predict(smooth.spline(Qs5Mid,quants5Mid),QsMid)$y)) < log(1.2)),1)
+                            ## ilastMid <- tail(which(abs(log(quantsMid/spline(Qs5Mid,quants5Mid,xout = QsMid)$y)) < log(1.2)),1)
+                            ## ilastMid <- tail(which(abs(log(quantsMid/predict(smooth.spline(Qs5Mid,quants5Mid),QsMid)$y)) < log(1.2)),1)
                             ilastMid <- tail(which(abs(log(quantsMid/spline(Qs10Mid,quants10Mid,xout = QsMid)$y)) < log(1.2)),1)
                             ilab  <- cut(absErrHat, quants,  labels = FALSE, include.lowest=TRUE)
                             ilab2 <- cut(absErrHat, quants2, labels = FALSE, include.lowest=TRUE)
